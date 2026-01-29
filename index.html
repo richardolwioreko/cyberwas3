@@ -72,6 +72,7 @@ body {
   font-size: 14px;
   opacity: 0.7;
   margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
 input {
@@ -96,7 +97,6 @@ button:hover {
   background: #00e676;
 }
 
-.success { color: #00ff88; font-weight: bold; }
 .fail { color: #ff5252; font-weight: bold; }
 
 /* FINAL BOX */
@@ -137,16 +137,11 @@ button:hover {
   <path fill="white" d="M100 150 C200 50 300 50 400 150 C500 50 600 50 700 150 C600 200 500 250 400 200 C300 250 200 200 100 150 Z"/>
 </svg>
 
-<p class="text-block">
-Lubię patrzeć gdy są malutkie, lubię widzieć jak
-dorastają. Czasami chodzę do szpitala i patrzę,
-jak z matek je wyciągają. Może dojrzała kobieta
-jest jak dobre wino, ale mój wąs marzy tylko o
-Tobie moja Ty słodka.....
-</p>
+<h3 id="levelTitle" style="color:#00ff88"></h3>
+<p class="text-block" id="levelText"></p>
 
 <div id="timer"></div>
-<div id="custom-text">do aktywacji pedowirusa</div>
+<div id="custom-text">DO AKTYWACJI PEDOWIRUSA</div>
 
 <input id="odpowiedz" placeholder="Wpisz hasło">
 <button id="checkBtn" onclick="sprawdz()">Sprawdź</button>
@@ -155,18 +150,14 @@ Tobie moja Ty słodka.....
 
 <!-- FINAL -->
 <div id="finalBox">
-  <h3 style="color:#00ff88">⚔️ Rejestr Wojowników Wąsa ⚔️</h3>
+  <h3 style="color:#00ff88">⚔️ REJESTR WOJOWNIKÓW WĄSA ⚔️</h3>
 
   <iframe
     src="https://tally.so/r/9q75A5?transparentBackground=1"
     width="100%"
     height="750"
     frameborder="0"
-    style="
-      margin-top: 10px;
-      border-radius: 12px;
-      background: transparent;
-    ">
+    style="margin-top:10px;border-radius:12px;">
   </iframe>
 </div>
 
@@ -202,7 +193,7 @@ setInterval(()=>{
 
 /* TIMER */
 const endDate=new Date("January 31, 2026 21:00:00").getTime();
-setInterval(()=>{
+const timerInterval=setInterval(()=>{
   const d=endDate-Date.now();
   timer.textContent=d>0
     ?`${Math.floor(d/86400000)}d ${Math.floor(d/3600000)%24}h ${Math.floor(d/60000)%60}m ${Math.floor(d/1000)%60}s`
@@ -216,18 +207,47 @@ was.onclick=()=>{
   setTimeout(()=>was.style.animation="",400);
 };
 
-/* HASŁO */
+/* POZIOMY */
+const levels = [
+  { title:"POZIOM I", text:"Wpisz hasło A", answers:["a"] },
+  { title:"POZIOM II", text:"Wpisz hasło B", answers:["b"] },
+  { title:"POZIOM III", text:"Wpisz hasło C", answers:["c"] },
+  { title:"POZIOM IV", text:"Wpisz hasło D", answers:["d"] },
+  { title:"POZIOM V", text:"Wpisz hasło E", answers:["e"] },
+  { title:"POZIOM VI", text:"Wpisz hasło F", answers:["f"] },
+  { title:"POZIOM VII", text:"Wpisz hasło G", answers:["g"] },
+  { title:"HASŁO OSTATECZNE", text:"Wpisz hasło H", answers:["h"] }
+];
+
+let currentLevel = 0;
+
+function loadLevel(){
+  levelTitle.textContent = levels[currentLevel].title;
+  levelText.textContent = levels[currentLevel].text;
+  odpowiedz.value = "";
+}
+
+loadLevel();
+
+/* SPRAWDZANIE */
 function sprawdz(){
-  const ok=["dziecino","dziecko","dzieci","maluszki"];
-  if(ok.includes(odpowiedz.value.toLowerCase().trim())){
+  const input = odpowiedz.value.toLowerCase().trim();
+  if(levels[currentLevel].answers.includes(input)){
     playAudio("good.MP3");
-    wynik.className="success";
-    odpowiedz.style.display=checkBtn.style.display="none";
-    finalBox.style.display="block";
+    currentLevel++;
+
+    if(currentLevel < levels.length){
+      loadLevel();
+    } else {
+      clearInterval(timerInterval);
+      odpowiedz.style.display = "none";
+      checkBtn.style.display = "none";
+      finalBox.style.display = "block";
+    }
   } else {
     playAudio("bad.MP3");
-    wynik.textContent="❌ Zła odpowiedź.";
-    wynik.className="fail";
+    wynik.textContent = "❌ Zła odpowiedź.";
+    wynik.className = "fail";
   }
 }
 </script>
