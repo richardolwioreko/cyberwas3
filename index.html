@@ -55,7 +55,6 @@ body {
   animation: pulse 1.2s infinite;
 }
 
-/* TEXT */
 .text-block {
   text-align: justify;
   line-height: 1.6;
@@ -72,7 +71,6 @@ body {
   font-size: 14px;
   opacity: 0.7;
   margin-bottom: 20px;
-  text-transform: uppercase;
 }
 
 input {
@@ -97,20 +95,10 @@ button:hover {
   background: #00e676;
 }
 
+.success { color: #00ff88; font-weight: bold; }
 .fail { color: #ff5252; font-weight: bold; }
 
-/* FINAL BOX */
-#finalBox {
-  display: none;
-  margin-top: 25px;
-  border: 2px solid #00ff88;
-  padding: 15px;
-  border-radius: 12px;
-  background: rgba(0,0,0,0.85);
-  box-shadow: 0 0 25px rgba(0,255,120,0.6);
-}
-
-/* ANIMACJE */
+/* ANIMATIONS */
 @keyframes shake {
   0% { transform: rotate(180deg); }
   25% { transform: rotate(180deg) translate(-3px,2px); }
@@ -137,36 +125,30 @@ button:hover {
   <path fill="white" d="M100 150 C200 50 300 50 400 150 C500 50 600 50 700 150 C600 200 500 250 400 200 C300 250 200 200 100 150 Z"/>
 </svg>
 
-<h3 id="levelTitle" style="color:#00ff88"></h3>
-<p class="text-block" id="levelText"></p>
+<p class="text-block">
+Lubię patrzeć gdy są malutkie, lubię widzieć jak
+dorastają. Czasami chodzę do szpitala i patrzę,
+jak z matek je wyciągają. Może dojrzała kobieta
+jest jak dobre wino, ale mój wąs marzy tylko o
+Tobie moja Ty słodka.....
+</p>
 
 <div id="timer"></div>
 <div id="custom-text">DO AKTYWACJI PEDOWIRUSA</div>
+
+<h3 id="levelText" style="margin-bottom:10px; color:#00ff88">Wpisz hasło A</h3>
 
 <input id="odpowiedz" placeholder="Wpisz hasło">
 <button id="checkBtn" onclick="sprawdz()">Sprawdź</button>
 
 <div id="wynik" class="text-block"></div>
 
-<!-- FINAL -->
-<div id="finalBox">
-  <h3 style="color:#00ff88">⚔️ REJESTR WOJOWNIKÓW WĄSA ⚔️</h3>
-
-  <iframe
-    src="https://tally.so/r/9q75A5?transparentBackground=1"
-    width="100%"
-    height="750"
-    frameborder="0"
-    style="margin-top:10px;border-radius:12px;">
-  </iframe>
-</div>
-
 </div>
 
 <script>
 function playAudio(file){ new Audio(file).play(); }
 
-/* INTRO */
+/* INTRO CLICK */
 document.addEventListener("click", ()=>playAudio("intro2.MP3"), { once:true });
 
 /* MATRIX */
@@ -192,13 +174,29 @@ setInterval(()=>{
 },50);
 
 /* TIMER */
-const endDate=new Date("January 31, 2026 21:00:00").getTime();
-const timerInterval=setInterval(()=>{
-  const d=endDate-Date.now();
-  timer.textContent=d>0
-    ?`${Math.floor(d/86400000)}d ${Math.floor(d/3600000)%24}h ${Math.floor(d/60000)%60}m ${Math.floor(d/1000)%60}s`
-    :"Czas minął";
-},1000);
+let endDate;
+let timerInterval;
+
+function startTimer(){
+  endDate = Date.now() + (1000 * 60 * 60 * 24 * 10); // 10 dni
+  timerInterval = setInterval(updateTimer, 1000);
+}
+
+function stopTimer(){
+  clearInterval(timerInterval);
+}
+
+function updateTimer(){
+  const d = endDate - Date.now();
+  if(d > 0){
+    timer.textContent =
+      `${Math.floor(d/86400000)}d ${Math.floor(d/3600000)%24}h ${Math.floor(d/60000)%60}m ${Math.floor(d/1000)%60}s`;
+  } else {
+    timer.textContent = "Czas minął";
+  }
+}
+
+startTimer();
 
 /* WĄS */
 was.onclick=()=>{
@@ -209,45 +207,78 @@ was.onclick=()=>{
 
 /* POZIOMY */
 const levels = [
-  { title:"POZIOM I", text:"Wpisz hasło A", answers:["a"] },
-  { title:"POZIOM II", text:"Wpisz hasło B", answers:["b"] },
-  { title:"POZIOM III", text:"Wpisz hasło C", answers:["c"] },
-  { title:"POZIOM IV", text:"Wpisz hasło D", answers:["d"] },
-  { title:"POZIOM V", text:"Wpisz hasło E", answers:["e"] },
-  { title:"POZIOM VI", text:"Wpisz hasło F", answers:["f"] },
-  { title:"POZIOM VII", text:"Wpisz hasło G", answers:["g"] },
-  { title:"HASŁO OSTATECZNE", text:"Wpisz hasło H", answers:["h"] }
+  { text:"Wpisz hasło A", answers:["a"] },
+  { text:"Wpisz hasło B", answers:["b"] },
+  { text:"Wpisz hasło C", answers:["c"] },
+  { text:"Wpisz hasło D", answers:["d"] },
+  { text:"Wpisz hasło E", answers:["e"] },
+  { text:"Wpisz hasło F", answers:["f"] },
+  { text:"Wpisz hasło G", answers:["g"] },
+  { text:"Wpisz hasło H", answers:["h"] }
 ];
 
 let currentLevel = 0;
+let waitingForH = false;
 
-function loadLevel(){
-  levelTitle.textContent = levels[currentLevel].title;
-  levelText.textContent = levels[currentLevel].text;
-  odpowiedz.value = "";
-}
-
-loadLevel();
+levelText.textContent = levels[0].text;
 
 /* SPRAWDZANIE */
 function sprawdz(){
   const input = odpowiedz.value.toLowerCase().trim();
-  if(levels[currentLevel].answers.includes(input)){
-    playAudio("good.MP3");
-    currentLevel++;
 
-    if(currentLevel < levels.length){
-      loadLevel();
-    } else {
-      clearInterval(timerInterval);
+  // jeśli czekamy na H
+  if(waitingForH){
+    if(input === "h"){
+      playAudio("good.MP3");
+      levelText.textContent = "🎉 WYGRAŁEŚ GRĘ! 🎉";
+      wynik.textContent = "";
       odpowiedz.style.display = "none";
       checkBtn.style.display = "none";
-      finalBox.style.display = "block";
+      timer.textContent = "STOP";
+      return;
+    } else {
+      playAudio("bad.MP3");
+      wynik.textContent = "❌ Zła odpowiedź.";
+      return;
     }
+  }
+
+  // normalne poziomy A–G
+  if(levels[currentLevel].answers.includes(input)){
+    playAudio("good.MP3");
+    wynik.textContent = "";
+    odpowiedz.value = "";
+    currentLevel++;
+
+    // jeśli właśnie ukończono G
+    if(currentLevel === 7){
+      stopTimer();
+      timer.textContent = "⏸ Zatrzymano";
+
+      levelText.textContent = "Czekaj 15 sekund…";
+      odpowiedz.style.display = "none";
+      checkBtn.style.display = "none";
+
+      setTimeout(()=>{
+        playAudio("blad.MP3");  // dźwięk przed poziomem H
+        waitingForH = true;
+
+        levelText.textContent = "Wpisz hasło H";
+        odpowiedz.style.display = "block";
+        checkBtn.style.display = "block";
+        odpowiedz.value = "";
+
+      },15000);
+
+      return;
+    }
+
+    // przejście do kolejnej zagadki A→B→C...
+    levelText.textContent = levels[currentLevel].text;
+
   } else {
     playAudio("bad.MP3");
     wynik.textContent = "❌ Zła odpowiedź.";
-    wynik.className = "fail";
   }
 }
 </script>
