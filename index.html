@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<title>CyberWąs</title>
+
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  font-family: Arial, sans-serif;
+  background: black;
+}
+
+/* MATRIX */
+#matrix {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+}
+
+/* CONTENT */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+}
+
+.container {
+  position: relative;
+  z-index: 2;
+  background: rgba(10, 10, 10, 0.85);
+  padding: 30px 40px;
+  border-radius: 14px;
+  max-width: 440px;
+  box-shadow: 0 0 40px rgba(0,255,120,0.3);
+  text-align: center;
+}
+
+/* WĄS */
+#was {
+  width: 340px;
+  margin: 0 auto 25px;
+  cursor: pointer;
+  filter: drop-shadow(0 0 14px #00ff88);
+  transform: rotate(180deg);
+}
+
+#was:hover {
+  animation: pulse 1.2s infinite;
+}
+
+/* TEXT */
+.text-block {
+  text-align: justify;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+#timer {
+  font-size: 22px;
+  color: orange;
+  margin: 15px 0 5px;
+}
+
+#custom-text {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 10px;
+  width: 80%;
+  border-radius: 6px;
+  border: none;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  background: #00c853;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #00e676;
+}
+
+.success { color: #00ff88; font-weight: bold; }
+.fail { color: #ff5252; font-weight: bold; }
+
+/* FINAL BOX */
+#finalBox {
+  display: none;
+  margin-top: 25px;
+  border: 2px solid #00ff88;
+  padding: 15px;
+  border-radius: 12px;
+  background: rgba(0,0,0,0.85);
+  box-shadow: 0 0 25px rgba(0,255,120,0.6);
+}
+
+/* ANIMACJE */
+@keyframes shake {
+  0% { transform: rotate(180deg); }
+  25% { transform: rotate(180deg) translate(-3px,2px); }
+  50% { transform: rotate(180deg) translate(3px,-2px); }
+  75% { transform: rotate(180deg) translate(-2px,1px); }
+  100% { transform: rotate(180deg); }
+}
+
+@keyframes pulse {
+  0% { filter: drop-shadow(0 0 6px #00ff88); }
+  50% { filter: drop-shadow(0 0 18px #00ff88); }
+  100% { filter: drop-shadow(0 0 6px #00ff88); }
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="container">
+
+<svg id="was" viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg">
+  <path fill="white" d="M100 150 C200 50 300 50 400 150 C500 50 600 50 700 150 C600 200 500 250 400 200 C300 250 200 200 100 150 Z"/>
+</svg>
+
+<p class="text-block">
+Lubię patrzeć gdy są malutkie, lubię widzieć jak
+dorastają. Czasami chodzę do szpitala i patrzę,
+jak z matek je wyciągają. Może dojrzała kobieta
+jest jak dobre wino, ale mój wąs marzy tylko o
+Tobie moja Ty słodka.....
+</p>
+
+<div id="timer"></div>
+<div id="custom-text">do aktywacji pedowirusa</div>
+
+<input id="odpowiedz" placeholder="Wpisz hasło">
+<button id="checkBtn" onclick="sprawdz()">Sprawdź</button>
+
+<div id="wynik" class="text-block"></div>
+
+<!-- FINAL -->
+<div id="finalBox">
+  <h3 style="color:#00ff88">⚔️ Rejestr Wojowników Wąsa ⚔️</h3>
+
+  <iframe
+    src="https://tally.so/r/9q75A5?transparentBackground=1"
+    width="100%"
+    height="750"
+    frameborder="0"
+    style="
+      margin-top: 10px;
+      border-radius: 12px;
+      background: transparent;
+    ">
+  </iframe>
+</div>
+
+</div>
+
+<script>
+function playAudio(file){ new Audio(file).play(); }
+
+/* INTRO */
+document.addEventListener("click", ()=>playAudio("intro2.MP3"), { once:true });
+
+/* MATRIX */
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d");
+canvas.width = innerWidth;
+canvas.height = innerHeight;
+
+const chars = "アカサタナハマヤラ0123456789";
+const fontSize = 16;
+const drops = Array(Math.floor(canvas.width/fontSize)).fill(1);
+
+setInterval(()=>{
+  ctx.fillStyle="rgba(0,0,0,0.05)";
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#00ff88";
+  ctx.font=fontSize+"px monospace";
+  drops.forEach((y,i)=>{
+    const t=chars[Math.random()*chars.length|0];
+    ctx.fillText(t,i*fontSize,y*fontSize);
+    drops[i]=(y*fontSize>canvas.height&&Math.random()>0.975)?0:y+1;
+  });
+},50);
+
+/* TIMER */
+const endDate=new Date("January 31, 2026 21:00:00").getTime();
+setInterval(()=>{
+  const d=endDate-Date.now();
+  timer.textContent=d>0
+    ?`${Math.floor(d/86400000)}d ${Math.floor(d/3600000)%24}h ${Math.floor(d/60000)%60}m ${Math.floor(d/1000)%60}s`
+    :"Czas minął";
+},1000);
+
+/* WĄS */
+was.onclick=()=>{
+  playAudio("was_click.MP3");
+  was.style.animation="shake 0.4s";
+  setTimeout(()=>was.style.animation="",400);
+};
+
+/* HASŁO */
+function sprawdz(){
+  const ok=["dziecino","dziecko","dzieci","maluszki"];
+  if(ok.includes(odpowiedz.value.toLowerCase().trim())){
+    playAudio("good.MP3");
+    wynik.className="success";
+    odpowiedz.style.display=checkBtn.style.display="none";
+    finalBox.style.display="block";
+  } else {
+    playAudio("bad.MP3");
+    wynik.textContent="❌ Zła odpowiedź.";
+    wynik.className="fail";
+  }
+}
+</script>
+
+</body>
+</html>
