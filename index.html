@@ -145,6 +145,15 @@ Lubię patrzeć gdy są malutkie, lubię widzieć jak dorastają. Czasami chodz�
 <script>
 function playAudio(f){ new Audio(f).play(); }
 
+/* NORMALIZACJA – działa dla wielkich/małych liter i ogonków */
+function normalize(str){
+  return str
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"");
+}
+
 /* INTRO ONLY ON FIRST CLICK */
 document.addEventListener("click", ()=>playAudio("intro2.MP3"), { once:true });
 
@@ -203,8 +212,6 @@ const puzzles = {
   5: { q:"Zagadka E", a:"e" },
   6: { q:"Zagadka F", a:"f" },
   7: { q:"Zagadka G", a:"Sebastianinka Wędlinka" },
-
-  // H – Twój tekst:
   8: { q:"Hasło znajdzie jeśli moją prawdziwą tożsamość uznać zdołacie", a:"h" }
 };
 
@@ -220,8 +227,8 @@ loadPuzzle(1);
 
 /* SPRAWDZANIE */
 function check(){
-  const user = answer.value.toLowerCase().trim();
-  const correct = puzzles[stage].a;
+  const user = normalize(answer.value);
+  const correct = normalize(puzzles[stage].a);
 
   if(user !== correct){
     playAudio("bad.MP3");
@@ -235,16 +242,17 @@ function check(){
   feedback.className="";
   playAudio("good.MP3");
 
-  /* SPECJALNY PRZYPADek G -> STOP + 15s + haha + H */
+  /* SPECJALNY: G – pauza 15s + dźwięk haha + przejście do H */
   if(stage === 7){
-    timerRunning = false; // zatrzymanie timera
+    timerRunning = false;
     mainText.textContent = "…";
     answer.style.display="none";
     document.querySelector("button").style.display="none";
 
     setTimeout(()=>{
       playAudio("haha.MP3");
-      timerRunning = true; // wznowienie timera
+      timerRunning = true;
+
       stage = 8;
       answer.style.display="block";
       document.querySelector("button").style.display="inline-block";
