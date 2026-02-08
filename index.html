@@ -246,7 +246,7 @@ function check(){
   playAudio("good.MP3");
 
   /* SPECJALNY: G – pauza 15s + dźwięk haha + przejście do H */
-  if(stage === 7){
+  if(stage === 10){
     timerRunning = false;
     mainText.textContent = "Brawo pokonoliście Richardo Lwioręko i zniszczyliście pedowirusa!!!";
     answer.style.display="none";
@@ -256,7 +256,7 @@ function check(){
       playAudio("haha.MP3");
       timerRunning = true;
 
-      stage = 8;
+      stage = 10;
       answer.style.display="block";
       document.querySelector("button").style.display="inline-block";
       loadPuzzle(8);
@@ -266,7 +266,7 @@ function check(){
   }
 
   /* OSTATECZNY POZIOM — WYGRANA */
-  if(stage === 8){
+  if(stage === 11){
     timerRunning = false;
     mainText.textContent = "🔥 Zwycięstwo 🔥\nPedowirus został pokonany.";
     answer.style.display="none";
